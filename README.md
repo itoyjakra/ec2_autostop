@@ -13,7 +13,7 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    Clone this repository to your local machine:
 
-sh git clone https://github.com/yourusername/ec2-autostop.git cd ec2-autostop
+   `git clone https://github.com/yourusername/ec2-autostop.git cd ec2-autostop`
 
 
 2. **Set Up AWS Credentials**
@@ -25,14 +25,14 @@ sh git clone https://github.com/yourusername/ec2-autostop.git cd ec2-autostop
 
    Initialize the Terraform working directory:
 
-sh terraform init
+   `terraform init`
 
 
    This command downloads the necessary provider plugins.
 
 4. **Configure Variables**
 
-   Set the required variables in the `variables.tf` file or through the command line. The required variables are:
+   Set the required variables in the `variables.tf` file. The required variables are:
 
    - `instance_id`: The ID of the EC2 instance to monitor.
    - `cpu_utilization_period`: The period in seconds over which the specified statistic is applied.
@@ -41,15 +41,11 @@ sh terraform init
 
    Example of setting variables through the command line:
 
-sh terraform apply -var 'instance_id=i-1234567890abcdef0' -var 'cpu_utilization_period=300' -var 'cpu_utilization_threshold=0.1' -var 'cpu_utilization_evaluation_periods=3'
-
-
 5. **Deploy the Solution**
 
    Apply the Terraform configuration to create the resources:
 
-sh terraform apply
-
+   `terraform apply`
 
    Review the changes and type `yes` when prompted to confirm the deployment.
 
@@ -57,11 +53,18 @@ sh terraform apply
 
    After the deployment is complete, verify that the resources have been created in the AWS Management Console.
 
+7. **Deploy while overriding metrics**
+
+   To override the variables defined in `terraform.tfvars`, specify them as follows:
+
+   `terraform apply -var 'instance_id=i-1234567890abcdef0' -var 'cpu_utilization_period=500' -var 'cpu_utilization_threshold=0.4' -var 'cpu_utilization_evaluation_periods=5'`
+
+
 ## Cleaning Up
 
 To remove the resources created by Terraform, run:
 
-sh terraform destroy
+`terraform destroy`
 
 
 Review the changes and type `yes` when prompted to confirm the destruction of the resources.
