@@ -6,6 +6,7 @@ variable "instance_id" {
   description = "The ID of the EC2 instance to monitor"
   type        = string
 }
+
 variable "cpu_utilization_period" {
   description = "The period in seconds over which the specified statistic is applied"
   type        = string
@@ -21,21 +22,6 @@ variable "cpu_utilization_evaluation_periods" {
   type        = string
 }
 
-# resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
-#   alarm_name          = "ec2-utilization-alarm"
-#   comparison_operator = "LessThanThreshold"
-#   evaluation_periods  = "3"
-#   metric_name         = "CPUUtilization"
-#   namespace           = "AWS/EC2"
-#   period              = "300"
-#   statistic           = "Average"
-#   threshold           = "0.1"
-#   alarm_description   = "This metric checks if the CPU utilization is less than  10% for  3 consecutive periods of  5 minutes."
-#   alarm_actions       = [aws_lambda_function.stop_ec2.arn]
-#   dimensions = {
-#     InstanceId = var.instance_id
-#   }
-# }
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   alarm_name          = "ec2-utilization-alarm"
   comparison_operator = "LessThanThreshold"
@@ -70,15 +56,6 @@ resource "aws_lambda_function" "stop_ec2" {
       INSTANCE_ID = var.instance_id
     }
   }
-}
-
-
-resource "aws_lambda_permission" "allow_cloudwatch" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.stop_ec2.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_metric_alarm.cpu_utilization.arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_alarms" {
