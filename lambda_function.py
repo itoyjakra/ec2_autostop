@@ -3,7 +3,6 @@ import json
 
 def lambda_handler(event, context):
     # Extract the instance ID from the CloudWatch alarm message
-    # instance_id = os.environ['INSTANCE_ID']
     print(f"{event=}")
     event_dimensions = event['alarmData']['configuration']['metrics'][0]['metricStat']['metric']['dimensions']
     instance_id = event_dimensions["InstanceId"]

@@ -2,9 +2,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "instance_id" {
-  description = "The ID of the EC2 instance to monitor"
-  type        = string
+variable "instance_ids" {
+  description = "The IDs of the EC2 instances to monitor"
+  type        = list(string)
 }
 
 variable "cpu_utilization_period" {
@@ -23,7 +23,9 @@ variable "cpu_utilization_evaluation_periods" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
-  alarm_name          = "ec2-utilization-alarm"
+  for_each = toset(var.instance_ids)
+
+  alarm_name          = "ec2-utilization-alarm-${each.key}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = var.cpu_utilization_evaluation_periods
   metric_name         = "CPUUtilization"
@@ -34,7 +36,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   alarm_description   = "This metric checks if the CPU utilization is less than  10% for  3 consecutive periods of  5 minutes."
   alarm_actions       = [aws_lambda_function.stop_ec2.arn]
   dimensions = {
-    InstanceId = var.instance_id
+    InstanceId = each.key
   }
 }
 
@@ -51,20 +53,21 @@ resource "aws_lambda_function" "stop_ec2" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.11"
   source_code_hash = filebase64sha256(data.archive_file.lambda_zip.output_path)
-  environment {
-    variables = {
-      INSTANCE_ID = var.instance_id
-    }
-  }
+  # environment {
+  #   variables = {
+  #     INSTANCE_ID = var.instance_id
+  #   }
+  # }
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_alarms" {
-  statement_id  = "AllowExecutionFromCloudWatchAlarms"
+  for_each = toset(var.instance_ids)
+
+  statement_id  = "AllowExecutionFromCloudWatchAlarms-${each.key}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.stop_ec2.function_name
-  # principal     = "events.amazonaws.com"
   principal = "lambda.alarms.cloudwatch.amazonaws.com"
-  source_arn    = aws_cloudwatch_metric_alarm.cpu_utilization.arn
+  source_arn    = aws_cloudwatch_metric_alarm.cpu_utilization[each.key].arn
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -118,7 +121,7 @@ resource "aws_cloudwatch_event_rule" "ec2_state_change" {
     detail-type = ["EC2 Instance State-change Notification"]
     detail = {
       state = ["running"]
-      instance-id = [var.instance_id]
+      instance-id = var.instance_ids
     }
   })
 }
