@@ -53,11 +53,6 @@ resource "aws_lambda_function" "stop_ec2" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.11"
   source_code_hash = filebase64sha256(data.archive_file.lambda_zip.output_path)
-  # environment {
-  #   variables = {
-  #     INSTANCE_ID = var.instance_id
-  #   }
-  # }
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_alarms" {
@@ -112,30 +107,30 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
   })
 }
 
-resource "aws_cloudwatch_event_rule" "ec2_state_change" {
-  name        = "ec2-state-change"
-  description = "Trigger Lambda function on EC2 instance state change"
+# resource "aws_cloudwatch_event_rule" "ec2_state_change" {
+#   name        = "ec2-state-change"
+#   description = "Trigger Lambda function on EC2 instance state change"
 
-  event_pattern = jsonencode({
-    source = ["aws.ec2"]
-    detail-type = ["EC2 Instance State-change Notification"]
-    detail = {
-      state = ["running"]
-      instance-id = var.instance_ids
-    }
-  })
-}
+#   event_pattern = jsonencode({
+#     source = ["aws.ec2"]
+#     detail-type = ["EC2 Instance State-change Notification"]
+#     detail = {
+#       state = ["running"]
+#       instance-id = var.instance_ids
+#     }
+#   })
+# }
 
-resource "aws_cloudwatch_event_target" "ec2_state_change_target" {
-  rule      = aws_cloudwatch_event_rule.ec2_state_change.name
-  target_id = "StopEC2Instance"
-  arn       = aws_lambda_function.stop_ec2.arn
-}
+# resource "aws_cloudwatch_event_target" "ec2_state_change_target" {
+#   rule      = aws_cloudwatch_event_rule.ec2_state_change.name
+#   target_id = "StopEC2Instance"
+#   arn       = aws_lambda_function.stop_ec2.arn
+# }
 
-resource "aws_lambda_permission" "allow_cloudwatch_events" {
-  statement_id  = "AllowExecutionFromCloudWatchEvents"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.stop_ec2.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.ec2_state_change.arn
-}
+# resource "aws_lambda_permission" "allow_cloudwatch_events" {
+#   statement_id  = "AllowExecutionFromCloudWatchEvents"
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.stop_ec2.function_name
+#   principal     = "events.amazonaws.com"
+#   source_arn    = aws_cloudwatch_event_rule.ec2_state_change.arn
+# }
