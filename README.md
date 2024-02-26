@@ -13,15 +13,15 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    Clone this repository to your local machine:
 
-   `git clone https://github.com/yourusername/ec2-autostop.git cd ec2-autostop`
+   `git clone https://github.com/itoyjakra/ec2_autostop.git`
 
 
-2. **Set Up AWS Credentials**
+3. **Set Up AWS Credentials**
 
    Configure your AWS credentials. You can do this by setting the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables, or by using the AWS CLI's `aws configure` command.
 
 
-3. **Initialize Terraform**
+4. **Initialize Terraform**
 
    Initialize the Terraform working directory:
 
@@ -30,7 +30,7 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    This command downloads the necessary provider plugins.
 
-4. **Configure Variables**
+5. **Configure Variables**
 
    Set the required variables in the `variables.tf` file. The required variables are:
 
@@ -41,7 +41,7 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    Example of setting variables through the command line:
 
-5. **Deploy the Solution**
+6. **Deploy the Solution**
 
    Apply the Terraform configuration to create the resources:
 
@@ -49,11 +49,11 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    Review the changes and type `yes` when prompted to confirm the deployment.
 
-6. **Verify the Deployment**
+7. **Verify the Deployment**
 
    After the deployment is complete, verify that the resources have been created in the AWS Management Console.
 
-7. **Deploy while overriding metrics**
+8. **Deploy while overriding metrics**
 
    To override the variables defined in `terraform.tfvars`, specify them as follows:
 
