@@ -1,4 +1,6 @@
-instance_id = "i-01234abcdef789012"
+instance_id = "i-056886ca1d1e4c916"
 cpu_utilization_period = "300"
 cpu_utilization_threshold = "0.1"
 cpu_utilization_evaluation_periods = "3"
+network_in_threshold = "1000"
+network_packets_threshold = "15"

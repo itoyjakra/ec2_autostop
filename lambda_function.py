@@ -1,12 +1,11 @@
 import boto3
 import json
+import os
 
 def lambda_handler(event, context):
-    # Extract the instance ID from the CloudWatch alarm message
-    # instance_id = os.environ['INSTANCE_ID']
+    # Use instance ID from environment variable (works for both metric and composite alarms)
+    instance_id = os.environ['INSTANCE_ID']
     print(f"{event=}")
-    event_dimensions = event['alarmData']['configuration']['metrics'][0]['metricStat']['metric']['dimensions']
-    instance_id = event_dimensions["InstanceId"]
     print(f"{instance_id=}")
     
     # Create an EC2 client

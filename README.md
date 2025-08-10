@@ -1,6 +1,6 @@
 # EC2 AutoStop Solution
 
-This repository contains the Terraform configuration for an EC2 AutoStop solution. The solution automatically stops EC2 instances when they are not in use, based on CPU utilization metrics.
+This repository contains the Terraform configuration for an EC2 AutoStop solution. The solution automatically stops EC2 instances when they are not in use, using intelligent multi-metric monitoring including CPU utilization, network activity, and packet counts.
 
 ## Prerequisites
 
@@ -32,12 +32,14 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
 5. **Configure Variables**
 
-   Set the required variables in the `variables.tf` file. The required variables are:
+   Set the required variables in the `terraform.tfvars` file. The available variables are:
 
    - `instance_id`: The ID of the EC2 instance to monitor.
-   - `cpu_utilization_period`: The period in seconds over which the specified statistic is applied.
-   - `cpu_utilization_threshold`: The value against which the specified statistic is compared.
+   - `cpu_utilization_period`: The period in seconds over which the specified statistic is applied (default: 300 seconds).
+   - `cpu_utilization_threshold`: CPU threshold as decimal (e.g., 0.1 = 10%).
    - `cpu_utilization_evaluation_periods`: The number of periods over which data is compared to the specified threshold.
+   - `network_in_threshold`: NetworkIn threshold in bytes per period (default: 1000 bytes).
+   - `network_packets_threshold`: NetworkPacketsIn threshold per period (default: 15 packets).
 
    Example of setting variables through the command line:
 
@@ -53,11 +55,21 @@ This repository contains the Terraform configuration for an EC2 AutoStop solutio
 
    After the deployment is complete, verify that the resources have been created in the AWS Management Console.
 
-8. **Deploy while overriding metrics**
+8. **Deploy with custom variables**
 
    To override the variables defined in `terraform.tfvars`, specify them as follows:
 
-   `terraform apply -var 'instance_id=i-1234567890abcdef0' -var 'cpu_utilization_period=500' -var 'cpu_utilization_threshold=0.4' -var 'cpu_utilization_evaluation_periods=5'`
+   `terraform apply -var 'instance_id=i-1234567890abcdef0' -var 'cpu_utilization_period=500' -var 'cpu_utilization_threshold=0.4' -var 'cpu_utilization_evaluation_periods=5' -var 'network_in_threshold=2000' -var 'network_packets_threshold=30'`
+
+## How It Works
+
+The solution uses a composite alarm that monitors multiple metrics simultaneously:
+
+- **CPU Utilization**: Monitors average CPU usage over 5-minute periods
+- **Network Activity**: Tracks NetworkIn bytes to detect active connections (e.g., SSH sessions)  
+- **Network Packets**: Monitors NetworkPacketsIn to catch low-bandwidth activity like SSH keepalives
+
+The EC2 instance is only stopped when **ALL** metrics show sustained low activity for the configured evaluation periods (default: 3 periods of 5 minutes = 15 minutes total). This intelligent approach prevents false stops during research/reading sessions while ensuring truly abandoned instances are stopped.
 
 
 ## Cleaning Up
